@@ -62,9 +62,24 @@ def test_from_string():
         move_variant=enums.MoveVariant.BASIC,
         measurement=0)
 
-    assert Move.from_string('a1^a4d1:SPLIT_SLIDE:BASIC') == Move('a1', 'a4', target2='d1', move_type=enums.MoveType.SPLIT_SLIDE, move_variant=enums.MoveVariant.BASIC)
-    assert Move.from_string('c3^c4c5:SPLIT_JUMP:BASIC') == Move('c3', 'c4', target2='c5', move_type=enums.MoveType.SPLIT_JUMP, move_variant=enums.MoveVariant.BASIC)
-    assert Move.from_string('a4d4^d1:MERGE_SLIDE:BASIC') == Move('a4', 'd1', source2='d4', move_type=enums.MoveType.MERGE_SLIDE, move_variant=enums.MoveVariant.BASIC)
+    assert Move.from_string('a1^a4d1:SPLIT_SLIDE:BASIC') == Move(
+        'a1',
+        'a4',
+        target2='d1',
+        move_type=enums.MoveType.SPLIT_SLIDE,
+        move_variant=enums.MoveVariant.BASIC)
+    assert Move.from_string('c3^c4c5:SPLIT_JUMP:BASIC') == Move(
+        'c3',
+        'c4',
+        target2='c5',
+        move_type=enums.MoveType.SPLIT_JUMP,
+        move_variant=enums.MoveVariant.BASIC)
+    assert Move.from_string('a4d4^d1:MERGE_SLIDE:BASIC') == Move(
+        'a4',
+        'd1',
+        source2='d4',
+        move_type=enums.MoveType.MERGE_SLIDE,
+        move_variant=enums.MoveVariant.BASIC)
 
 
 def test_to_string():

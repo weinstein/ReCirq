@@ -233,11 +233,15 @@ class QuantumProcessor:
 
 
 class EngineQuantumProcessor:
-    def __init__(self, processor_id: str):
+    def __init__(self, processor_id: str, gatesets = {}):
         self.name = processor_id
         self.processor_id = processor_id
         self.is_simulator = False
         self._engine = None
+        self._gatesets = gatesets or {
+            'sycamore': gate_sets.SYC_GATESET,
+            'sqrt-iswap': gate_sets.SQRT_ISWAP_GATESET,
+        }
 
     @property
     def engine(self):
@@ -249,30 +253,19 @@ class EngineQuantumProcessor:
         return self._engine
 
     def get_sampler(self, gateset: str = None):
-        if gateset == 'sycamore':
-            gateset = gate_sets.SYC_GATESET
-        elif gateset == 'sqrt-iswap':
-            gateset = gate_sets.SQRT_ISWAP_GATESET
-        else:
-            raise ValueError("Unknown gateset {}".format(gateset))
-        return self.engine.sampler(processor_id=self.processor_id, gate_set=gateset)
+        if gateset not in self._gatesets:
+            raise ValueError(f"Unknown gateset {gateset}")
+        return self.engine.sampler(processor_id=self.processor_id, gate_set=self._gatesets[gateset])
 
     @property
     def device_obj(self):
         dspec = self.engine.get_processor(self.processor_id).get_device_specification()
-        device = cg_devices.SerializableDevice.from_proto(proto=dspec, gate_sets=[])
+        device = cg_devices.SerializableDevice.from_proto(proto=dspec, gate_sets=self._gatesets.values())
         return device
 
 
 QUANTUM_PROCESSORS = {
-    'Sycamore23': QuantumProcessor(
-        name='Sycamore23',
-        device_obj=cg_devices.Sycamore23,
-        processor_id='rainbow',
-        is_simulator=False,
-        _get_sampler_func=lambda x, gs: EngineSampler(
-            processor_id=x.processor_id, gateset=gs),
-    ),
+    'Sycamore23': EngineQuantumProcessor('rainbow'),
     'Syc23-noiseless': QuantumProcessor(
         name='Syc23-noiseless',
         device_obj=cg_devices.Sycamore23,
@@ -308,6 +301,7 @@ QUANTUM_PROCESSORS = {
         is_simulator=True,
         _get_sampler_func=lambda x, gs: ZerosSampler()
     ),
+    'Sycamore54': EngineQuantumProcessor('weber'),
     'Syc54-noiseless': QuantumProcessor(
         name='Syc54-noiseless',
         device_obj=cg_devices.Sycamore,

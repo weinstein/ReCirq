@@ -41,5 +41,5 @@ def _load_all_game_files() -> Dict[str, List[Move]]:
 #     ...
 ALL_GAMES = _load_all_game_files()
 
-# A smaller subset of ALL_GAMES that have 20 or fewer moves.
-TINY_GAMES = dict((name, moves) for (name, moves) in ALL_GAMES.items() if len(moves) <= 20)
+# A smaller subset of ALL_GAMES that have 12 or fewer moves.
+TINY_GAMES = dict((name, moves) for (name, moves) in ALL_GAMES.items() if len(moves) <= 12)

@@ -80,7 +80,7 @@ class CirqBoard:
         if device is not None:
             self.transformer = (
                 transformer
-                or ct.ConnectivityHeuristicCircuitTransformer(device))
+                or ct.DynamicLookAheadHeuristicCircuitTransformer(device))
         self.with_state(init_basis_state)
         self.error_mitigation = error_mitigation
         self.noise_mitigation = noise_mitigation
@@ -205,10 +205,6 @@ class CirqBoard:
             if num_reps < 100:
                 num_reps = 100
 
-            self.debug_log += (f'Running circuit with {num_reps} reps '
-                               f'to get {num_samples} samples:\n'
-                               f'{str(measure_circuit)}\n')
-
             # Translate circuit to grid qubits and sqrtISWAP gates
             if self.device is not None:
                 # Decompose 3-qubit operations
@@ -218,6 +214,12 @@ class CirqBoard:
 
                 # For debug, ensure that the circuit correctly validates
                 self.device.validate_circuit(measure_circuit)
+
+            self.debug_log += (f'Running circuit with {num_reps} reps '
+                               f'to get {num_samples} samples:\n'
+                               f'{str(measure_circuit)}\n')
+            # TODO remove print statement
+            self.print_debug_log()
 
             # Run the circuit using the provided sampler (simulator or hardware)
             results = self.sampler.run(measure_circuit, repetitions=num_reps)
@@ -266,6 +268,7 @@ class CirqBoard:
                                 f'but got {num_ones(new_sample)}')
                         if self.error_mitigation == enums.ErrorMitigation.Correct:
                             error_count += 1
+                            #print(f'sample {rep} error-corrected away')
                             continue
 
                 # Noise mitigation
@@ -291,10 +294,10 @@ class CirqBoard:
                     return (rtn, ancilla)
         else:
             rtn = [self.state] * num_samples
-            self.debug_log += (
-                f'Discarded {error_count} from error mitigation '
-                f'{noise_count} from noise and {post_count} from post-selection\n'
-            )
+        self.debug_log += (
+            f'Discarded {error_count} from error mitigation '
+            f'{noise_count} from noise and {post_count} from post-selection\n'
+        )
         self.record_time("sample_with_ancilla", t0)
         return (rtn, ancilla)
 
